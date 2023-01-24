@@ -1,4 +1,7 @@
 const Mongoose = require("mongoose");
+const Plan = require('./plan');
+const Bank = require('./bank');
+
 const UserSchema = new Mongoose.Schema({
   mobno: {
     type: String,
@@ -87,6 +90,14 @@ const UserSchema = new Mongoose.Schema({
   },
   great_grand_parent_id: {
     type:Mongoose.Types.ObjectId
+  },
+  plans_purchased:{
+    type:[Plan.schema],
+    default:[]
+  },
+  bank_details: {
+    type:Bank.schema,
+    default:{}
   }
 })
 

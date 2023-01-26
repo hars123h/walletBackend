@@ -98,6 +98,14 @@ const UserSchema = new Mongoose.Schema({
   bank_details: {
     type:Bank.schema,
     default:{}
+  },
+  placed_recharges: {
+    type:Array,
+    default:[]
+  },
+  withdrawals: {
+    type:Array,
+    default:[]
   }
 })
 

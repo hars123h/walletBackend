@@ -18,7 +18,7 @@ const BankSchema = Mongoose.Schema({
         type: String,
         required: true
     },
-    ifs: {
+    ifsc: {
         type: String,
         required: true
     }

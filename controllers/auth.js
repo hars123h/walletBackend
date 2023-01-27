@@ -6,8 +6,10 @@ const Bank = require('../model/bank');
 const Recharge = require('../model/recharge');
 const Feedback = require('../model/feedback');
 const Withdrawal = require('../model/withdrawal');
+const Amount = require('../model/amount');
+const Controller = require("../model/controller");
 
-exports.login = async (req, res, next) => {
+exports.login = async (req,  res) => {
   const { mobno, pwd } = req.body
   if (!mobno || !pwd) {
     res.status(400).json({
@@ -29,7 +31,7 @@ exports.login = async (req, res, next) => {
   }
 }
 
-exports.register = async (req, res, next) => {
+exports.register = async (req,  res) => {
   const { mobno, pwd, wpwd, invt } = req.body;
   if (pwd.length < 6) {
     return res.status(400).json({ message: "Password less than 6 characters" })
@@ -107,7 +109,7 @@ exports.register = async (req, res, next) => {
   }
 }
 
-exports.forgotPassword = async (req, res, next) => {
+exports.forgotPassword = async (req,  res) => {
   const { mobno } = req.body;
   try {
     const data = await User.findOne({ mobno: mobno }).
@@ -128,7 +130,7 @@ exports.forgotPassword = async (req, res, next) => {
   }
 }
 
-exports.purchase = async (req, res, next) => {
+exports.purchase = async (req,  res) => {
   const { balance, boughtLong, boughtShort, plans_purchased, user_id } = req.body;
   const newPlan = new Plan(plans_purchased)
 
@@ -159,7 +161,7 @@ exports.purchase = async (req, res, next) => {
 
 }
 
-exports.reset_login_password = async (req, res, next) => {
+exports.reset_login_password = async (req,  res) => {
   const { user_id, new_pwd } = req.body;
   try {
     await User.updateOne({ _id: user_id }, {
@@ -177,7 +179,7 @@ exports.reset_login_password = async (req, res, next) => {
   }
 }
 
-exports.reset_withdrawal_password = async (req, res, next) => {
+exports.reset_withdrawal_password = async (req,  res) => {
   const { user_id, new_wpwd } = req.body;
   try {
     await User.updateOne({ _id: user_id }, {
@@ -195,7 +197,7 @@ exports.reset_withdrawal_password = async (req, res, next) => {
   }
 }
 
-exports.bank_details = async (req, res, next) => {
+exports.bank_details = async (req,  res) => {
   const { user_id, bank_details } = req.body;
   try {
     await User.updateOne({ _id: user_id }, {
@@ -213,7 +215,7 @@ exports.bank_details = async (req, res, next) => {
   }
 }
 
-exports.place_recharge = async (req, res, next) => {
+exports.place_recharge = async (req,  res) => {
 
   const data = req.body;
 
@@ -240,7 +242,7 @@ exports.place_recharge = async (req, res, next) => {
 
 }
 
-exports.feedback = async(req, res, next) => {
+exports.feedback = async(req,  res) => {
   const data = req.body;
   try {
     await Feedback.create(data)
@@ -258,7 +260,7 @@ exports.feedback = async(req, res, next) => {
   }
 }
 
-exports.update_recharge = async(req, res, next) => {
+exports.update_recharge = async(req,  res) => {
   
   const data = req.body;
   // Add recharge bonus on line 271, sent amountDetails along with req.body
@@ -318,7 +320,7 @@ exports.update_recharge = async(req, res, next) => {
 
 }
 
-exports.place_withdrawal = async(req, res, next) => {
+exports.place_withdrawal = async(req,  res) => {
 
   const data = req.body;
 
@@ -351,7 +353,7 @@ exports.place_withdrawal = async(req, res, next) => {
   
 }
 
-exports.update_withdrawal = async(req, res, next) => {
+exports.update_withdrawal = async(req,  res) => {
 
   const data = req.body;
 
@@ -384,7 +386,7 @@ exports.update_withdrawal = async(req, res, next) => {
 
 }
 
-exports.get_all_recharges = async(req, res, next) => {
+exports.get_all_recharges = async(req,  res) => {
   try {
     const response = await Recharge.find({});
     res.status(200).json({
@@ -397,7 +399,7 @@ exports.get_all_recharges = async(req, res, next) => {
   }
 }
 
-exports.get_all_withdrawals = async(req, res, next) => {
+exports.get_all_withdrawals = async(req,  res) => {
   try {
     const response = await Withdrawal.find({});
     res.status(200).json({
@@ -410,7 +412,7 @@ exports.get_all_withdrawals = async(req, res, next) => {
   }
 }
 
-exports.get_user_count = async(req, res, next) => {
+exports.get_user_count = async(req,  res) => {
   try {
     const query = await User.find().count();
     res.status(200).json({
@@ -423,7 +425,7 @@ exports.get_user_count = async(req, res, next) => {
   }
 }
 
-exports.get_all_users = async(req, res, next) => {
+exports.get_all_users = async(req,  res) => {
   try {
     const response = await User.find();
     res.status(200).json({
@@ -436,7 +438,7 @@ exports.get_all_users = async(req, res, next) => {
   }
 }
 
-exports.update_earning = async(req, res, next) => {
+exports.update_earning = async(req,  res) => {
   const data = req.body;
 
   try {
@@ -457,4 +459,119 @@ exports.update_earning = async(req, res, next) => {
   }
 }
 
+exports.dashboard_data = async(req,  res) => {
+  try {
+    const response1 = await User.aggregate(
+      [
+        {
+          $group : {
+             _id : null,
+             total_balance: { $sum: "$balance"}, // for your case use local.balance
+          }
+        }
+      ]);
+    const response2 = await Recharge.aggregate([
+      {
+        $group: {
+          _id: null,
+          total_recharge : {$sum: "$recharge_value"} // recharge_value
+        }
+      }
+    ]);
 
+    const response3 = await Withdrawal.aggregate([
+      {
+        $group: {
+          _id: null,
+          total_withdrawal : {$sum: "$withdrawalAmount"}
+        }
+      }
+    ])
+    res.status(200).json({
+      totalBalance: response1[0].total_balance,
+      totalRecharge: response2[0].total_recharge,
+      totalWithdrawal: response3[0].total_withdrawal
+    });
+  } catch (error) {
+    res.status(400).json({
+      message:'Something went wrong!'
+    });
+  }
+}
+
+
+exports.amount_setup = async(req, res) => {
+  const data = req.body;
+  try {
+    const response = await Amount.create(data).then((res)=>res);
+    res.status(200).json({
+      message:'Amount Updated Successfully',
+      data : response
+    })
+  } catch (error) {
+    res.status(400).json({
+      message:'something went wrong!'
+    })
+  }
+}
+
+exports.add_controller = async(req, res) => {
+  const data = req.body;
+  try {
+    const response = await Controller.create(data).then((res)=>res);
+    res.status(200).json({
+      message:'User Created Successfully',
+      data : response
+    })
+  } catch (error) {
+    res.status(400).json({
+      message:'something went wrong!'
+    })
+  }
+}
+
+exports.get_controllers = async(req, res) => {
+  try {
+    const response = await Controller.find();
+    res.status(200).json({
+      data:response
+    })
+  } catch (error) {
+    res.status(400).json({
+      message:'something went wrong!'
+    })
+  }
+}
+
+exports.get_amounts = async(req, res) => {
+  try {
+    await Amount.find().where("_id").equals("63d3b7f558faef0089cb09cb").exec((err, result)=>{
+      res.status(200).json({
+        data:result[0]
+      })
+    });
+    
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      message:'something went wrong!'
+    })
+  }
+}
+
+exports.update_amounts = async(req, res) => {
+  try {
+    await Amount.updateOne({_id:"63d3b7f558faef0089cb09cb"}, {
+      $set: {
+        ...req.body
+      }
+    });
+    res.status(200).json({
+      message:'Amounts updated successfully!'
+    })
+  } catch (error) {
+    res.status(400).json({
+      message:'Something went wrong!'
+    })
+  }
+}

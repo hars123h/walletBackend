@@ -499,7 +499,6 @@ exports.dashboard_data = async(req,  res) => {
   }
 }
 
-
 exports.amount_setup = async(req, res) => {
   const data = req.body;
   try {
@@ -572,6 +571,42 @@ exports.update_amounts = async(req, res) => {
   } catch (error) {
     res.status(400).json({
       message:'Something went wrong!'
+    })
+  }
+}
+
+exports.delete_controller = async(req, res) => {
+  const {user_id} = req.body;
+  try {
+    await Controller.deleteOne({_id:user_id});
+    res.status(200).json({
+      message:'Controller deleted successfully!'
+    })
+  } catch (error) {
+    res.status(400).json({
+      message:'Something went wrong!'
+    })
+  }
+}
+
+exports.admin_login = async(req, res) => {
+  const {email, password} = req.body;
+  try {
+    await Controller.findOne({ email:email, password:password }).then((err, result)=>{
+      
+      if (err) {
+        return res.send(err);
+      }else if(!result){
+        return res.send({message:'Invalid email/password, please try again!'})
+      } else {
+        return res.send(result);
+      }
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      message:'Something went wrong!',
     })
   }
 }

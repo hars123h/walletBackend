@@ -1,6 +1,6 @@
 const express = require("express");
 const env = require("dotenv");
-const app = express()
+const app = express();
 const cors = require("cors")
 require("./db/conn")
 

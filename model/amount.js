@@ -13,7 +13,7 @@ const AmountSchema = Mongoose.Schema({
         type: Number,
         required: true,
     },
-    level2_percent: {
+    level1_percent: {
         type: Number,
         required: true,
     },
@@ -36,6 +36,10 @@ const AmountSchema = Mongoose.Schema({
     upi_id: {
         type: String,
         required: true
+    },
+    plan_state: {
+        type: Array,
+        default: [],
     }
 });
 

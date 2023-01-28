@@ -335,7 +335,7 @@ exports.place_withdrawal = async(req,  res) => {
           }
         },
         $set: {
-          balance: data.balance,
+          balance:(data.balance-data.withdrawalAmount),
           lastWithdrawal: data.time
         }
       })
@@ -577,6 +577,7 @@ exports.update_amounts = async(req, res) => {
 
 exports.delete_controller = async(req, res) => {
   const {user_id} = req.body;
+  console.log(user_id);
   try {
     await Controller.deleteOne({_id:user_id});
     res.status(200).json({
@@ -608,5 +609,46 @@ exports.admin_login = async(req, res) => {
     res.status(400).json({
       message:'Something went wrong!',
     })
+  }
+}
+
+exports.update_plan_state = async(req, res) => {
+  const {new_plan_state} = req.body;
+  try {
+    await Amount.updateOne({_id:"63d3b7f558faef0089cb09cb"}, {
+      $set: {
+        plan_state: new_plan_state
+      }
+    });
+    res.status(200).json({
+      message:'Plan Status updated'
+    });
+  } catch (error) {
+    res.status(400).json({
+      message:'Something went wrong!'
+    });
+  }
+}
+
+exports.get_all_controllers = async(req, res) => {
+  try {
+    const response = await Controller.find({});
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(400).json({
+      message:'Something went wrong!'
+    });
+  }
+}
+
+exports.get_all_feedbacks = async(req, res) => {
+  try {
+    const response = await Feedback.find({});
+    res.status(200).json(response);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      message:'Something went wrong!'
+    });
   }
 }

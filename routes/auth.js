@@ -5,7 +5,8 @@ const { place_recharge, register, login, forgotPassword,
         update_recharge, place_withdrawal, update_withdrawal, get_all_recharges, 
         get_user_count, get_all_withdrawals, get_all_users, update_earning,
         dashboard_data, amount_setup, add_controller, get_controllers,
-        get_amounts, update_amounts, delete_controller, admin_login
+        get_amounts, update_amounts, delete_controller, admin_login, update_plan_state,
+        get_all_controllers, get_all_feedbacks
 } = require('../controllers/auth');
 
 const router = express.Router();
@@ -32,7 +33,10 @@ router.get('/get_all_withdrawals', get_all_withdrawals);
 router.get('/get_user_count', get_user_count);
 router.get('/get_all_users', get_all_users);
 router.get('/dashboard_data_sum', dashboard_data);
-router.delete('/delete_controller', delete_controller);
+router.post('/delete_controller', delete_controller);
 router.post('/admin_login', admin_login);
+router.post('/update_plan_state', update_plan_state);
+router.get('/get_all_controllers', get_all_controllers);
+router.get('/get_all_feedbacks', get_all_feedbacks)
 
 module.exports = router;

@@ -4,23 +4,23 @@ const BankSchema = Mongoose.Schema({
     
     fullName: {
         type:String,
-        required: true
+        default:''
     },
     phoneNo: {
         type: String,
-        required: true
+        default:''
     },
     bankAccount: {
         type: String,
-        required: true
+        default:''
     },
     bankName: {
         type: String,
-        required: true
+        default:''
     },
     ifsc: {
         type: String,
-        required: true
+        default:''
     }
 });
 

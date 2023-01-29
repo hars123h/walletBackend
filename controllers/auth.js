@@ -8,6 +8,7 @@ const Feedback = require('../model/feedback');
 const Withdrawal = require('../model/withdrawal');
 const Amount = require('../model/amount');
 const Controller = require("../model/controller");
+const Blocked = require('../model/blocked');
 
 exports.login = async (req,  res) => {
   const { mobno, pwd } = req.body
@@ -17,7 +18,9 @@ exports.login = async (req,  res) => {
     })
   } else {
     try {
-      const data = await User.findOne({ mobno: mobno, pwd: pwd }).then(response => { return response; });
+      const data = await User.findOne({ mobno: mobno, pwd: pwd }).then( response => { 
+        return response;
+      });
       res.status(200).json({
         message: 'Logged In Successfully',
         user_details: data,
@@ -55,7 +58,8 @@ exports.register = async (req,  res) => {
       boughtLong: 0,
       showShort: 0,
       boughtShort: 0,
-      lastWithdrawal: new Date()
+      lastWithdrawal: new Date(),
+      bank_details: new Bank()
     }).then(async (user) => {
 
       const parent_data = await User.findOne({ user_invite: user.parent_invt }).then((res) => res);
@@ -647,6 +651,35 @@ exports.get_all_feedbacks = async(req, res) => {
     res.status(200).json(response);
   } catch (error) {
     console.log(error);
+    res.status(400).json({
+      message:'Something went wrong!'
+    });
+  }
+}
+
+exports.get_blocked_users = async(req, res) => {
+  try {
+    await Blocked.find({}).then((data)=>{
+      res.status(200).json(
+        data
+      )
+    })
+  } catch (error) {
+    res.status(400).json({
+      message:'Something went wrong'
+    });
+  }
+}
+
+exports.add_blocked_users = async(req, res) => {
+  const {user_id} = req.body;
+  try {
+    await Blocked.create({user_id}).then(()=>{
+      res.status(200).json({
+        message:'User Blocked Successfully!'
+      })
+    });
+  } catch (error) {
     res.status(400).json({
       message:'Something went wrong!'
     });

@@ -685,3 +685,16 @@ exports.add_blocked_users = async(req, res) => {
     });
   }
 }
+
+exports.get_user = async(req, res) => {
+  const {user_id} = req.body;
+  try {
+    await User.findOne({_id:user_id}).then(res=>{
+      res.status(200).json(res);
+    })
+  } catch (error) {
+    res.status(400).json({
+      message:'Something went wrong!'
+    });
+  }
+}

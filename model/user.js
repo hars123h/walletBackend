@@ -1,6 +1,8 @@
 const Mongoose = require("mongoose");
 const Plan = require('./plan');
 const Bank = require('./bank');
+const mongoosePaginate = require('mongoose-paginate-v2');
+
 
 const UserSchema = new Mongoose.Schema({
   mobno: {
@@ -92,7 +94,7 @@ const UserSchema = new Mongoose.Schema({
     type:Mongoose.Types.ObjectId
   },
   plans_purchased:{
-    type:[Plan.schema],
+    type:Array,
     default:[]
   },
   bank_details: {
@@ -108,6 +110,8 @@ const UserSchema = new Mongoose.Schema({
     default:[]
   }
 })
+
+UserSchema.plugin(mongoosePaginate);
 
 const User = Mongoose.model("user", UserSchema)
 module.exports = User

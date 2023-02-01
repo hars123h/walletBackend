@@ -1,4 +1,4 @@
-const User = require("../model/User");
+const User = require("../model/user");
 const referralCodeGenerator = require('referral-code-generator');
 const axios = require('axios');
 const Plan = require("../model/plan");
@@ -9,6 +9,7 @@ const Withdrawal = require('../model/withdrawal');
 const Amount = require('../model/amount');
 const Controller = require("../model/controller");
 const Blocked = require('../model/blocked');
+
 
 exports.login = async (req,  res) => {
   const { mobno, pwd } = req.body
@@ -136,7 +137,7 @@ exports.forgotPassword = async (req,  res) => {
 
 exports.purchase = async (req,  res) => {
   const { balance, boughtLong, boughtShort, plans_purchased, user_id } = req.body;
-  const newPlan = new Plan(plans_purchased)
+  const newPlan = plans_purchased
 
   try {
     await User.updateOne({ _id: user_id },
@@ -447,11 +448,13 @@ exports.update_earning = async(req,  res) => {
 
   try {
     await User.updateOne({_id: data.user_id}, {
-      $set: {
+      $inc: {
         balance: data.earn,
         earning: data.earn,
-        plans_purchased: data.temp
       },
+      $set: {
+        plans_purchased: data.temp
+      }
     });
     res.status(200).json({
       message:'Reward Successfully Updated!'
@@ -689,12 +692,71 @@ exports.add_blocked_users = async(req, res) => {
 exports.get_user = async(req, res) => {
   const {user_id} = req.body;
   try {
-    await User.findOne({_id:user_id}).then(res=>{
-      res.status(200).json(res);
+    await User.findOne({_id:user_id}).then(response=>{
+      res.status(200).json(response);
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(400).json({
+      message:'Something went wrong!'
+    });
+  }
+}
+
+exports.get_user_recharges = async(req, res) => {
+  const {user_id} = req.body;
+  try {
+    await Recharge.find().where("user_id").equals(user_id).exec((err, result)=>{
+      res.status(200).json(result);
     })
   } catch (error) {
     res.status(400).json({
       message:'Something went wrong!'
     });
+  }
+}
+
+exports.get_user_withdrawals = async(req, res) => {
+  const {user_id} = req.body;
+  try {
+    await Withdrawal.find().where("user_id").equals(user_id).exec((err, result)=>{
+      res.status(200).json(result);
+    })
+  } catch (error) {
+    res.status(400).json({
+      message:'Something went wrong!'
+    });
+  }
+}
+
+exports.get_paginated_user = async(req, res) => {
+
+  const {options} = req.body;
+
+  try {
+    await User.paginate({}, options, function(err, result){
+      //console.log(result);
+      //console.log(err);
+      res.status(200).json(result);
+    });
+    
+  } catch (error) {
+    res.status(400).json({message:'Something went wrong!'});
+  }
+
+}
+
+exports.update_balance = async(req, res) => {
+  const {new_balance, user_id} = req.body;
+  try {
+    await User.updateOne({_id:user_id},{
+      $set:{
+        balance:new_balance
+      }
+    }).then((response)=>{
+      res.status(200).json({ message: 'Balance successfully updated' });
+    })
+  } catch (error) {
+    res.status(400).json({message:'Something went wrong!'});
   }
 }

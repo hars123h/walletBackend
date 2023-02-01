@@ -98,11 +98,12 @@ exports.register = async (req,  res) => {
         { $push: { indirectMember: user._id } }
       );
 
-      return newUser;
+      return user._id;
     })
-      .then(newUser =>
+      .then(user_id =>
         res.status(200).json({
-          message: "User successfully created"
+          message: "User successfully created",
+          user_id: user_id
         })
       )
   } catch (err) {
@@ -758,5 +759,19 @@ exports.update_balance = async(req, res) => {
     })
   } catch (error) {
     res.status(400).json({message:'Something went wrong!'});
+  }
+}
+
+exports.search_users = async(req, res) => {
+  const {searchField} = req.body;
+  try {
+    await User.find({mobno:{ $regex: new RegExp(`^${searchField}`) }}).exec((err, result)=>{
+      //console.log(result);
+      res.status(200).json(result);
+    })
+  } catch (error) {
+    res.status(400).json({
+      message:'something went wrong!'
+    });
   }
 }

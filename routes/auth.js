@@ -7,7 +7,8 @@ const { place_recharge, register, login, forgotPassword,
         dashboard_data, amount_setup, add_controller, get_controllers,
         get_amounts, update_amounts, delete_controller, admin_login, update_plan_state,
         get_all_controllers, get_all_feedbacks, get_blocked_users, add_blocked_users,
-        get_user, get_user_recharges, get_user_withdrawals, get_paginated_user, update_balance, search_users, get_promo_amount, invite_rewards, team_sum
+        get_user, get_user_recharges, get_user_withdrawals, get_paginated_user,
+        update_balance, search_users, get_promo_amount, invite_rewards, lvl1, lvl2, lvl3
 } = require('../controllers/auth');
 
 const router = express.Router();
@@ -49,6 +50,9 @@ router.post("/update_balance", update_balance);
 router.post('/search_users', search_users);
 router.post('/avail_promo', get_promo_amount);
 router.post('/invite_rewards', invite_rewards);
-router.post('/team_sum', team_sum);
+router.post('/lvl1', lvl1);
+router.post('/lvl2', lvl2);
+router.post('/lvl3', lvl3);
+
 
 module.exports = router;

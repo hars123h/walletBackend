@@ -60,6 +60,10 @@ const UserSchema = new Mongoose.Schema({
     type: Number,
     default: 0
   },
+  in_indirectRecharge: {
+    type: Number,
+    default: 0
+  },
   directMember: {
     type:[Mongoose.Types.ObjectId],  
     default:[]

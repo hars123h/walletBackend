@@ -1,4 +1,4 @@
-const User = require("../model/User");
+const User = require("../model/user");
 const referralCodeGenerator = require('referral-code-generator');
 const axios = require('axios');
 const Plan = require("../model/plan");

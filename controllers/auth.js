@@ -777,7 +777,7 @@ exports.search_users = async (req, res) => {
 }
 
 exports.get_promo_amount = async (req, res) => {
-  const max = 50, min = 1;
+  const max = 20, min = 1;
   const { promo_code, user_id } = req.body;
   const availed_promocodes = await User.findById(user_id).then(({ availed_promocode }) => availed_promocode);
   const admin_promo = await Amount.findById("63d3b7f558faef0089cb09cb").then(({ promo_code }) => promo_code);

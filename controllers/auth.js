@@ -46,7 +46,7 @@ exports.register = async (req, res) => {
       pwd,
       wpwd,
       time: new Date(),
-      balance: 0,
+      balance: 51,
       recharge_amount: 0,
       earning: 0,
       user_invite: referralCodeGenerator.alpha('lowercase', 6),

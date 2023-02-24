@@ -480,6 +480,9 @@ exports.dashboard_data = async (req, res) => {
       ]);
     const response2 = await Recharge.aggregate([
       {
+        $match:{'status':'confirmed' }
+      },
+      {  
         $group: {
           _id: null,
           total_recharge: { $sum: "$recharge_value" } // recharge_value
@@ -488,6 +491,9 @@ exports.dashboard_data = async (req, res) => {
     ]);
 
     const response3 = await Withdrawal.aggregate([
+      {
+        $match:{'status':'confirmed' }
+      },
       {
         $group: {
           _id: null,

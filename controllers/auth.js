@@ -968,3 +968,23 @@ exports.lvl3 = async (req, res) => {
     res.status(400).json({message:'Something went wrong!'});
   }
 }
+
+exports.withdrawalSum = async (req, res) => {
+  const { user_id } = req.body;
+  var wSum = 0;
+  try {
+    await Withdrawal.find({"user_id":user_id})
+    .then(response=>{
+      response.map((element)=>{
+        wSum+=element.withdrawalAmount
+      })
+      res.status(200).json({ wSum:wSum })
+    }
+    );
+    //res.status(200).json({ message: 'Check Message Inbox for password' });
+  } catch (error) {
+    res.status(400).json({
+      messaage:'Something went wrong!'
+    });
+  }
+}

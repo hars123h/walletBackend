@@ -8,7 +8,8 @@ const { place_recharge, register, login, forgotPassword,
         get_amounts, update_amounts, delete_controller, admin_login, update_plan_state,
         get_all_controllers, get_all_feedbacks, get_blocked_users, add_blocked_users,
         get_user, get_user_recharges, get_user_withdrawals, get_paginated_user,
-        update_balance, search_users, get_promo_amount, invite_rewards, lvl1, lvl2, lvl3
+        update_balance, search_users, get_promo_amount, invite_rewards, lvl1, lvl2, lvl3,
+        withdrawalSum
 } = require('../controllers/auth');
 
 const router = express.Router();
@@ -53,6 +54,6 @@ router.post('/invite_rewards', invite_rewards);
 router.post('/lvl1', lvl1);
 router.post('/lvl2', lvl2);
 router.post('/lvl3', lvl3);
-
+router.post('/withdrawalSum', withdrawalSum);
 
 module.exports = router;

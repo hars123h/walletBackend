@@ -376,7 +376,8 @@ exports.update_withdrawal = async (req, res) => {
       if (data.new_status === 'declined') {
         await User.updateOne({ _id: data.user_id }, {
           $inc: {
-            balance: Number(data.withdrawal_value)
+            balance: Number(data.withdrawal_value),
+            withdrawal_sum: -Number(data.withdrawalAmount)
           }
         })
       }

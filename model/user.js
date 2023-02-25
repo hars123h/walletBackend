@@ -36,6 +36,10 @@ const UserSchema = new Mongoose.Schema({
     type: Number,
     default: 0
   },
+  withdrawal_sum: {
+    type: Number,
+    default: 0
+  },
   earning: {
     type: Number,
     default: 0

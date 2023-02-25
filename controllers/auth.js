@@ -48,6 +48,7 @@ exports.register = async (req, res) => {
       time: new Date(),
       balance: 110,
       recharge_amount: 0,
+      withdrawal_sum: 0,
       earning: 0,
       user_invite: referralCodeGenerator.alpha('lowercase', 6),
       parent_invt: invt,
@@ -343,6 +344,9 @@ exports.place_withdrawal = async (req, res) => {
           $set: {
             balance: (data.balance - data.withdrawalAmount),
             lastWithdrawal: data.time
+          },
+          $inc: {
+            withdrawal_sum: data.withdrawalAmount,
           }
         })
       });

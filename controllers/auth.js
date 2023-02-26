@@ -37,83 +37,91 @@ exports.login = async (req, res) => {
 
 exports.register = async (req, res) => {
   const { mobno, pwd, wpwd, invt } = req.body;
-  if (pwd.length < 6) {
-    return res.status(400).json({ message: "Password less than 6 characters" })
-  }
-  try {
-    await User.create({
-      mobno,
-      pwd,
-      wpwd,
-      time: new Date(),
-      balance: 110,
-      recharge_amount: 0,
-      withdrawal_sum: 0,
-      earning: 0,
-      user_invite: referralCodeGenerator.alpha('lowercase', 6),
-      parent_invt: invt,
-      grand_parent_invt: '',
-      directRecharge: 0,
-      indirectRecharge: 0,
-      directMember: [],
-      indirectMember: [],
-      boughtLong: 0,
-      showShort: 0,
-      boughtShort: 0,
-      lastWithdrawal: new Date(),
-      bank_details: new Bank()
-    }).then(async (user) => {
+  await User.findOne({ "mobno": mobno }).then(async(responses) => {
+    if (responses) {
+      return res.status(200).json({ message: 'Mobile Number already registered!' });
+    } else {
+      if (pwd.length < 6) {
+        return res.status(400).json({ message: "Password less than 6 characters" })
+      }
+      try {
+        await User.create({
+          mobno,
+          pwd,
+          wpwd,
+          time: new Date(),
+          balance: 110,
+          recharge_amount: 0,
+          withdrawal_sum: 0,
+          earning: 0,
+          user_invite: referralCodeGenerator.alpha('lowercase', 6),
+          parent_invt: invt,
+          grand_parent_invt: '',
+          directRecharge: 0,
+          indirectRecharge: 0,
+          directMember: [],
+          indirectMember: [],
+          boughtLong: 0,
+          showShort: 0,
+          boughtShort: 0,
+          lastWithdrawal: new Date(),
+          bank_details: new Bank()
+        }).then(async (user) => {
 
-      const parent_data = await User.findOne({ user_invite: user.parent_invt }).then((res) => res);
-      return { user, parent_data };
+          const parent_data = await User.findOne({ user_invite: user.parent_invt }).then((res) => res);
+          return { user, parent_data };
 
-    }).then(async ({ user, parent_data }) => {
+        }).then(async ({ user, parent_data }) => {
 
-      const grand_parent_data = await User.findOne({ user_invite: parent_data.parent_invt }).then((res) => res)
-      return { user, parent_data, grand_parent_data };
+          const grand_parent_data = await User.findOne({ user_invite: parent_data.parent_invt }).then((res) => res)
+          return { user, parent_data, grand_parent_data };
 
-    }).then(async ({ user, parent_data, grand_parent_data }) => {
+        }).then(async ({ user, parent_data, grand_parent_data }) => {
 
-      const great_grand_parent_data = await User.findOne({ user_invite: grand_parent_data.parent_invt }).then((res) => res)
-      return { user, parent_data, grand_parent_data, great_grand_parent_data };
+          const great_grand_parent_data = await User.findOne({ user_invite: grand_parent_data.parent_invt }).then((res) => res)
+          return { user, parent_data, grand_parent_data, great_grand_parent_data };
 
-    }).then(async ({ user, parent_data, grand_parent_data, great_grand_parent_data }) => {
+        }).then(async ({ user, parent_data, grand_parent_data, great_grand_parent_data }) => {
 
-      const newUser = await User.updateOne({ _id: user._id }, {
-        $set: {
-          parent_id: parent_data._id,
-          grand_parent_id: grand_parent_data._id,
-          great_grand_parent_id: great_grand_parent_data._id
-        }
-      });
+          const newUser = await User.updateOne({ _id: user._id }, {
+            $set: {
+              parent_id: parent_data._id,
+              grand_parent_id: grand_parent_data._id,
+              great_grand_parent_id: great_grand_parent_data._id
+            }
+          });
 
-      await User.updateOne({ _id: parent_data._id },
-        { $push: { directMember: user._id } }
-      );
+          await User.updateOne({ _id: parent_data._id },
+            { $push: { directMember: user._id } }
+          );
 
-      await User.updateOne({ _id: grand_parent_data._id },
-        { $push: { indirectMember: user._id } }
-      );
+          await User.updateOne({ _id: grand_parent_data._id },
+            { $push: { indirectMember: user._id } }
+          );
 
-      await User.updateOne({ _id: great_grand_parent_data._id },
-        { $push: { in_indirectMember: user._id } }
-      );
+          await User.updateOne({ _id: great_grand_parent_data._id },
+            { $push: { in_indirectMember: user._id } }
+          );
 
-      return user._id;
-    })
-      .then(user_id =>
-        res.status(200).json({
-          message: "User successfully created",
-          user_id: user_id
+          return user._id;
         })
-      )
-  } catch (err) {
-    console.log(err);
-    res.status(401).json({
-      message: "User not successful created",
-      error: err,
-    })
-  }
+          .then(user_id =>
+            res.status(200).json({
+              message: "User successfully created",
+              user_id: user_id
+            })
+          )
+      } catch (err) {
+        console.log(err);
+        res.status(401).json({
+          message: "User not successful created",
+          error: err,
+        })
+      }
+    }
+  });
+
+
 }
 
 exports.forgotPassword = async (req, res) => {
@@ -485,9 +493,9 @@ exports.dashboard_data = async (req, res) => {
       ]);
     const response2 = await Recharge.aggregate([
       {
-        $match:{'status':'confirmed' }
+        $match: { 'status': 'confirmed' }
       },
-      {  
+      {
         $group: {
           _id: null,
           total_recharge: { $sum: "$recharge_value" } // recharge_value
@@ -497,7 +505,7 @@ exports.dashboard_data = async (req, res) => {
 
     const response3 = await Withdrawal.aggregate([
       {
-        $match:{'status':'confirmed' }
+        $match: { 'status': 'confirmed' }
       },
       {
         $group: {
@@ -914,63 +922,63 @@ exports.invite_rewards = async (req, res) => {
 exports.lvl1 = async (req, res) => {
   const { user_id } = req.body;
   try {
-    await User.findById(user_id).then(user_data=>{
-      const level_1 = async() => {
-        arr1 = await User.find({"_id": {$in:user_data.directMember}}, function(err, result){
-          if(err) {
+    await User.findById(user_id).then(user_data => {
+      const level_1 = async () => {
+        arr1 = await User.find({ "_id": { $in: user_data.directMember } }, function (err, result) {
+          if (err) {
             throw "something went wrong"
-          }else {
-            res.status(200).json({level1:result});
+          } else {
+            res.status(200).json({ level1: result });
           }
-        }).clone().catch(function(err){ console.log(err)})
+        }).clone().catch(function (err) { console.log(err) })
       }
       level_1();
     });
   } catch (error) {
     console.log(error);
-    res.status(400).json({message:'Something went wrong!'});
+    res.status(400).json({ message: 'Something went wrong!' });
   }
 }
 
 exports.lvl2 = async (req, res) => {
   const { user_id } = req.body;
   try {
-    await User.findById(user_id).then(user_data=>{
-      const level_2 = async() => {
-        arr1 = await User.find({"_id": {$in:user_data.indirectMember}}, function(err, result){
-          if(err) {
+    await User.findById(user_id).then(user_data => {
+      const level_2 = async () => {
+        arr1 = await User.find({ "_id": { $in: user_data.indirectMember } }, function (err, result) {
+          if (err) {
             throw "something went wrong"
-          }else {
-            res.status(200).json({level2:result});
+          } else {
+            res.status(200).json({ level2: result });
           }
-        }).clone().catch(function(err){ console.log(err)})
+        }).clone().catch(function (err) { console.log(err) })
       }
       level_2();
     });
   } catch (error) {
     console.log(error);
-    res.status(400).json({message:'Something went wrong!'});
+    res.status(400).json({ message: 'Something went wrong!' });
   }
 }
 
 exports.lvl3 = async (req, res) => {
   const { user_id } = req.body;
   try {
-    await User.findById(user_id).then(user_data=>{
-      const level_3 = async() => {
-        arr1 = await User.find({"_id": {$in:user_data.in_indirectMember}}, function(err, result){
-          if(err) {
+    await User.findById(user_id).then(user_data => {
+      const level_3 = async () => {
+        arr1 = await User.find({ "_id": { $in: user_data.in_indirectMember } }, function (err, result) {
+          if (err) {
             throw "something went wrong"
-          }else {
-            res.status(200).json({level3:result});
+          } else {
+            res.status(200).json({ level3: result });
           }
-        }).clone().catch(function(err){ console.log(err)})
+        }).clone().catch(function (err) { console.log(err) })
       }
       level_3();
     });
   } catch (error) {
     console.log(error);
-    res.status(400).json({message:'Something went wrong!'});
+    res.status(400).json({ message: 'Something went wrong!' });
   }
 }
 
@@ -978,18 +986,18 @@ exports.withdrawalSum = async (req, res) => {
   const { user_id } = req.body;
   var wSum = 0;
   try {
-    await Withdrawal.find({"user_id":user_id})
-    .then(response=>{
-      response.map((element)=>{
-        wSum+=element.withdrawalAmount
-      })
-      res.status(200).json({ wSum:wSum })
-    }
-    );
+    await Withdrawal.find({ "user_id": user_id })
+      .then(response => {
+        response.map((element) => {
+          wSum += element.withdrawalAmount
+        })
+        res.status(200).json({ wSum: wSum })
+      }
+      );
     //res.status(200).json({ message: 'Check Message Inbox for password' });
   } catch (error) {
     res.status(400).json({
-      messaage:'Something went wrong!'
+      messaage: 'Something went wrong!'
     });
   }
 }

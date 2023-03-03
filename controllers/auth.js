@@ -50,7 +50,7 @@ exports.register = async (req, res) => {
           pwd,
           wpwd,
           time: new Date(),
-          balance: 110,
+          balance: 100,
           recharge_amount: 0,
           withdrawal_sum: 0,
           earning: 0,

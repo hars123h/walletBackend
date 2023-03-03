@@ -385,7 +385,7 @@ exports.update_withdrawal = async (req, res) => {
         await User.updateOne({ _id: data.user_id }, {
           $inc: {
             balance: Number(data.withdrawal_value),
-            withdrawal_sum: (-1)*Number(data.withdrawalAmount)
+            withdrawal_sum: (-1)*Number(data.withdrawal_value)
           }
         })
       }
@@ -396,6 +396,7 @@ exports.update_withdrawal = async (req, res) => {
       new_Data
     });
   } catch (error) {
+    console.log(error);
     res.status(400).json({
       message: 'Something went wrong!',
       error: error.message
